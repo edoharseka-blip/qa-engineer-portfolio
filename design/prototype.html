@@ -4,218 +4,295 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>E90 OS — прототип</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600&display=swap" rel="stylesheet">
 <style>
-/* ===== Токены. Ночь/день × три стиля. Размер макета 1280×480 ===== */
+/* ===== Токены. Макет 1280×480, масштабируется под 1920×720 ===== */
 :root{
-  --bg:#0c0d10; --bg2:#15171c; --card:#1a1d23; --line:#2a2e36;
-  --text:#f2f3f5; --mute:#8d939e; --warn:#ffb020; --ok:#3ecf8e;
-  --accent:#ff5a3c; --accent-ink:#fff; --r:18px;
+  --bg0:#05070b; --bg1:#0d1626;
+  --glass:rgba(255,255,255,.045); --glass2:rgba(255,255,255,.085); --edge:rgba(255,255,255,.09); --hi:rgba(255,255,255,.07);
+  --text:#eef2f8; --mute:#8a94a6; --dim:#5a6476;
+  --accent:#3d9bff; --accent2:#7cc0ff; --glow:rgba(61,155,255,.45);
+  --warn:#ffb340; --ok:#39d98a;
+  --map-bg:#0b1220; --map-block:#111a2b; --map-minor:#1c2638; --map-major:#2b374d; --map-water:#0c2440; --map-park:#0f2420; --map-label:#5f6b80;
+  --shadow:0 12px 32px rgba(0,0,0,.45);
 }
-[data-theme=day]{--bg:#eceef1; --bg2:#fff; --card:#fff; --line:#d5d9df; --text:#14161a; --mute:#646b76}
-[data-style=ice]{--accent:#3aa0ff; --r:26px}
-[data-style=amber]{--accent:#f2a900; --accent-ink:#1a1300; --r:8px}
-[data-theme=day][data-style=amber]{--accent:#c78500;--accent-ink:#fff}
+[data-theme=day]{
+  --bg0:#cfd6e0; --bg1:#eef2f7;
+  --glass:rgba(255,255,255,.62); --glass2:rgba(255,255,255,.85); --edge:rgba(20,40,70,.10); --hi:rgba(255,255,255,.9);
+  --text:#0f1724; --mute:#556072; --dim:#8a94a6;
+  --accent:#0a72e0; --accent2:#3d9bff; --glow:rgba(10,114,224,.28);
+  --map-bg:#e8edf3; --map-block:#dde4ec; --map-minor:#ffffff; --map-major:#fdfdfd; --map-water:#b9d3ee; --map-park:#cfe5d2; --map-label:#7a8494;
+  --shadow:0 10px 26px rgba(30,50,80,.16);
+}
 
 *{box-sizing:border-box;margin:0}
 html,body{height:100%;background:#000;overflow:hidden}
-body{display:flex;align-items:center;justify-content:center;font-family:system-ui,"Segoe UI",Roboto,sans-serif}
-#stage{width:1280px;height:480px;flex:none;position:relative;transform-origin:center;background:var(--bg);color:var(--text);
-  display:flex;flex-direction:column;overflow:hidden;transition:background .35s,color .35s}
-button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
-button:focus-visible,[data-f]:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+body{display:flex;align-items:center;justify-content:center;font-family:Inter,system-ui,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+#stage{width:1280px;height:480px;flex:none;position:relative;transform-origin:center;color:var(--text);overflow:hidden;
+  background:radial-gradient(900px 420px at 55% -10%,var(--bg1) 0%,var(--bg0) 70%);transition:background .5s,color .5s;
+  display:grid;grid-template-columns:76px 1fr;grid-template-rows:38px 1fr}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;-webkit-tap-highlight-color:transparent;text-align:inherit}
 .num{font-variant-numeric:tabular-nums}
+[data-f]{outline:none;transition:box-shadow .2s,border-color .2s,transform .15s,background .2s}
+[data-f]:focus-visible{border-color:var(--accent)!important;box-shadow:0 0 0 1px var(--accent),0 0 22px var(--glow)!important}
+[data-f]:active{transform:scale(.97)}
 
-/* верхняя строка */
-#top{height:40px;flex:none;display:flex;align-items:center;gap:22px;padding:0 28px;font-size:17px;color:var(--mute)}
-#top .time{color:var(--text);font-weight:600;font-size:20px}
+/* статус-бар */
+#top{grid-column:1/3;display:flex;align-items:center;gap:20px;padding:0 24px 0 26px;font-size:15px;color:var(--mute)}
+#top .time{color:var(--text);font-size:19px;font-weight:500;letter-spacing:.01em}
 #top .sp{flex:1}
-.pill{padding:3px 10px;border-radius:99px;border:1px solid var(--line);font-size:13px;letter-spacing:.04em;text-transform:uppercase}
-.pill.demo{color:var(--warn);border-color:var(--warn)}
+#top svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;vertical-align:-3px}
+.demo{display:inline-block;padding:1px 7px;border-radius:5px;font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--warn);background:rgba(255,179,64,.12)}
+
+/* левое меню */
+#rail{display:flex;flex-direction:column;align-items:center;gap:6px;padding:6px 0 14px}
+#rail button{width:58px;height:62px;border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+  font-size:10.5px;color:var(--mute);border:1px solid transparent;position:relative}
+#rail button svg{width:25px;height:25px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+#rail button[aria-current=page]{color:var(--text);background:var(--glass2);border-color:var(--edge)}
+#rail button[aria-current=page]::before{content:"";position:absolute;left:-9px;top:18px;bottom:18px;width:3px;border-radius:2px;background:var(--accent);box-shadow:0 0 12px var(--glow)}
 
 /* экран */
-#view{flex:1;min-height:0;padding:6px 28px 14px;position:relative}
-.screen{position:absolute;inset:6px 28px 14px;display:none;gap:18px;animation:in .28s ease}
+#view{position:relative;min-height:0}
+.screen{position:absolute;inset:0 18px 16px 4px;display:none;gap:14px;animation:in .35s cubic-bezier(.2,.7,.2,1)}
 .screen.on{display:flex}
-@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes in{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){.screen{animation:none}}
 
-.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;position:relative}
-.lbl{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
-.big{font-size:56px;font-weight:700;line-height:1}
-.mid{font-size:28px;font-weight:600}
-.u{font-size:18px;color:var(--mute);font-weight:500;margin-left:4px}
-.tag{position:absolute;top:12px;right:14px;font-size:11px;letter-spacing:.06em;color:var(--warn);text-transform:uppercase}
-.btn{min-height:64px;padding:0 22px;border-radius:var(--r);background:var(--bg2);border:1px solid var(--line);font-size:19px;font-weight:600;
-  display:flex;align-items:center;justify-content:center;gap:10px;transition:transform .12s,background .2s}
-.btn:active{transform:scale(.97)}
-.btn.pri{background:var(--accent);color:var(--accent-ink);border-color:transparent}
-.btn[aria-pressed=true]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
-.btn:disabled{opacity:.45;cursor:not-allowed}
-.col{display:flex;flex-direction:column;gap:12px}.row{display:flex;gap:12px}.g1{flex:1}.g2{flex:2}
+.glass{background:linear-gradient(180deg,var(--glass2),var(--glass));border:1px solid var(--edge);border-radius:20px;
+  box-shadow:var(--shadow),inset 0 1px 0 var(--hi);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);position:relative}
+.side{width:262px;flex:none;display:flex;flex-direction:column;gap:14px}
+.lbl{font-size:11.5px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
+.thin{font-weight:200;letter-spacing:-.03em;line-height:.9}
+.u{font-size:14px;color:var(--mute);font-weight:400;letter-spacing:0;margin-left:4px}
+.corner{position:absolute;top:12px;right:12px}
 
-/* док */
-#dock{height:76px;flex:none;display:flex;background:var(--bg2);border-top:1px solid var(--line)}
-#dock button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:15px;color:var(--mute);position:relative}
-#dock button svg{width:30px;height:30px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-#dock button[aria-current=page]{color:var(--text)}
-#dock button[aria-current=page]::before{content:"";position:absolute;top:0;left:30%;right:30%;height:3px;background:var(--accent);border-radius:0 0 3px 3px}
+/* виджет скорости */
+.speedw{padding:16px 18px;flex:1;display:flex;flex-direction:column}
+.speedw .v{font-size:84px;margin-top:6px}
+.stats{display:flex;justify-content:space-between;margin-top:auto;padding-top:10px;border-top:1px solid var(--edge)}
+.stats b{display:block;font-size:19px;font-weight:400}
+.stats span{font-size:11px;color:var(--mute)}
 
-/* главная */
-.car{height:215px;flex:none}
-.car .door{fill:var(--line);transition:fill .3s}.car .door.open{fill:var(--warn)}
-.speed{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
-.speed .big{font-size:132px;letter-spacing:-.03em}
-.bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden;margin-top:8px}.bar i{display:block;height:100%;background:var(--accent)}
-.cover{width:84px;height:84px;border-radius:calc(var(--r) - 6px);background:linear-gradient(135deg,var(--accent),var(--line));flex:none}
-.ctl{width:64px;height:64px;min-height:0;padding:0;border-radius:50%}
-.ctl svg{width:26px;height:26px;fill:currentColor}
+/* медиа */
+.media{padding:14px;display:flex;flex-direction:column;gap:12px}
+.media .row{display:flex;gap:12px;align-items:center}
+.cover{width:58px;height:58px;border-radius:12px;flex:none;background:
+  radial-gradient(circle at 30% 30%,var(--accent2),transparent 60%),linear-gradient(135deg,#1f3b66,#0b1424);box-shadow:inset 0 0 0 1px var(--edge)}
+.trk{min-width:0}.trk b{display:block;font-weight:500;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trk span{font-size:13px;color:var(--mute)}
+.prog{height:3px;border-radius:2px;background:var(--edge);overflow:hidden}.prog i{display:block;height:100%;width:34%;background:var(--accent)}
+.ctls{display:flex;justify-content:space-between;align-items:center;padding:0 6px}
+.ctl{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;border:1px solid transparent}
+.ctl svg{width:22px;height:22px;fill:currentColor}
+.ctl.pri{background:var(--accent);color:#fff;box-shadow:0 6px 20px var(--glow)}
 
-/* списки/настройки */
-.list{display:flex;flex-direction:column;gap:10px;overflow:auto}
-.item{display:flex;align-items:center;justify-content:space-between;min-height:64px;padding:0 20px;border-radius:var(--r);background:var(--card);border:1px solid var(--line);font-size:19px;text-align:left;width:100%}
-.item small{color:var(--mute);font-size:15px}
-.apps{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;width:100%;align-content:start}
-.app{height:150px;flex-direction:column;gap:10px;font-size:16px}
-.app b{width:64px;height:64px;border-radius:calc(var(--r) - 4px);background:var(--line);display:grid;place-items:center;font-size:26px}
-.sw{width:54px;height:30px;border-radius:15px;background:var(--line);position:relative;flex:none;transition:background .2s}
-.sw::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:transform .2s}
-[aria-checked=true] .sw{background:var(--accent)}[aria-checked=true] .sw::after{transform:translateX(24px)}
-.ok{color:var(--ok)}.warn{color:var(--warn)}
+/* карта */
+.map{flex:1;min-width:0;overflow:hidden;border-radius:22px;padding:0}
+.map svg.m{position:absolute;inset:0;width:100%;height:100%;display:block}
+.m .bg{fill:var(--map-bg)}.m .blk{fill:var(--map-block)}.m .water{fill:var(--map-water)}.m .park{fill:var(--map-park)}
+.m .minor{stroke:var(--map-minor);stroke-width:5;fill:none;stroke-linecap:round}
+.m .major{stroke:var(--map-major);stroke-width:11;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.m text{fill:var(--map-label);font-size:10px;font-family:Inter,system-ui,sans-serif;letter-spacing:.04em}
+.m .route-glow{stroke:var(--glow);stroke-width:18;fill:none;stroke-linecap:round;stroke-linejoin:round;filter:blur(4px)}
+.m .route{stroke:var(--accent);stroke-width:7;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.m .flow{stroke:rgba(255,255,255,.55);stroke-width:2;fill:none;stroke-dasharray:2 14;stroke-linecap:round;animation:flow 1.2s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-16}}
+.m .dest{fill:var(--accent)}
+.vign{position:absolute;inset:0;pointer-events:none;border-radius:22px;
+  background:radial-gradient(120% 90% at 50% 45%,transparent 55%,rgba(0,0,0,.45));}
+[data-theme=day] .vign{background:radial-gradient(120% 90% at 50% 45%,transparent 60%,rgba(40,60,90,.12))}
+.turn{position:absolute;left:14px;top:14px;display:flex;align-items:center;gap:14px;padding:12px 18px 12px 14px;border-radius:16px}
+.turn .ic{width:46px;height:46px;border-radius:12px;background:var(--accent);display:grid;place-items:center;box-shadow:0 6px 18px var(--glow)}
+.turn .ic svg{width:28px;height:28px;stroke:#fff;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.turn b{font-size:26px;font-weight:300;display:block;line-height:1}
+.turn span{font-size:13px;color:var(--mute)}
+.eta{position:absolute;left:14px;right:14px;bottom:14px;display:flex;align-items:center;gap:22px;padding:10px 10px 10px 20px;border-radius:16px}
+.eta b{font-size:22px;font-weight:400}.eta span{font-size:12px;color:var(--mute);display:block}
+.eta .sp{flex:1}
+.eta .btn span{display:inline;color:inherit;font-size:inherit}
+.btn{height:48px;padding:0 20px;border-radius:13px;display:inline-flex;align-items:center;gap:6px;font-size:15px;font-weight:500;background:var(--glass2);border:1px solid var(--edge)}
+.btn.pri{background:var(--accent);border-color:transparent;color:#fff;box-shadow:0 6px 20px var(--glow)}
+.mapbtns{position:absolute;right:14px;top:14px;display:flex;flex-direction:column;gap:8px}
+.mapbtns button{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-size:20px;font-weight:300}
+.maptag{position:absolute;right:14px;top:14px}
+.full .maptag{right:70px;top:26px}
+
+/* виджет машины */
+.carw{padding:14px 16px;flex:1;display:flex;gap:10px;align-items:center}
+.carw svg.car{height:150px;flex:none}
+.car .body{fill:url(#cbody);stroke:var(--edge)}
+.car .win{fill:var(--bg0);opacity:.85}
+.car .door{fill:var(--dim);opacity:.4;transition:all .3s}.car .door.open{fill:var(--warn);opacity:1;filter:drop-shadow(0 0 4px var(--warn))}
+.kv{display:flex;flex-direction:column;gap:11px;flex:1}
+.kv b{display:block;font-size:20px;font-weight:400}.kv span{font-size:11px;color:var(--mute)}
+.fuel{height:4px;border-radius:2px;background:var(--edge);margin-top:5px;overflow:hidden}.fuel i{display:block;height:100%;width:38%;background:linear-gradient(90deg,var(--warn),var(--accent))}
+
+/* быстрые места */
+.quick{padding:12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.qb{height:74px;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;font-size:12.5px;color:var(--mute);border:1px solid var(--edge);background:var(--glass)}
+.qb svg{width:24px;height:24px;stroke:var(--text);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+
+/* общие списки */
+.list{display:flex;flex-direction:column;gap:10px}
+.item{display:flex;align-items:center;justify-content:space-between;gap:14px;min-height:60px;padding:0 18px;border-radius:15px;font-size:16px;width:100%;
+  background:linear-gradient(180deg,var(--glass2),var(--glass));border:1px solid var(--edge)}
+.item small{color:var(--mute);font-size:13px}
+.item[aria-pressed=true]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.item:disabled{opacity:.45;cursor:not-allowed}
+.sw{width:48px;height:28px;border-radius:14px;background:var(--edge);position:relative;flex:none;transition:background .25s}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:transform .25s;box-shadow:0 2px 6px rgba(0,0,0,.3)}
+[aria-checked=true] .sw{background:var(--accent)}[aria-checked=true] .sw::after{transform:translateX(20px)}
+.tile{padding:16px 18px;flex:1}
+.tile .v{font-size:60px;margin-top:12px}
+.apps{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;width:100%;align-content:start}
+.app{height:128px;border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;font-size:13.5px;color:var(--mute);text-align:center}
+.app i{width:56px;height:56px;border-radius:15px;display:grid;place-items:center;font-style:normal;font-size:22px;font-weight:500;color:#fff;box-shadow:0 6px 16px rgba(0,0,0,.3)}
+.warn{color:var(--warn)}
 </style>
 </head>
 <body>
-<div id="stage" data-theme="night" data-style="graphite">
+<div id="stage" data-theme="night">
 
+<!-- статус-бар -->
 <div id="top">
   <span class="time num" id="clock">--:--</span>
   <span id="date"></span>
-  <span class="num">+12 °C <span class="pill demo">демо</span></span>
   <span class="sp"></span>
-  <span>Bluetooth: не подключён</span>
-  <span class="pill demo" title="Данные машины сейчас не с реального источника">Источник: демо</span>
+  <span class="num">+12 °C <span class="demo">демо</span></span>
+  <span title="Bluetooth"><svg viewBox="0 0 24 24"><path d="M7 7l10 10-5 4V3l5 4L7 17"/></svg> нет устройства</span>
+  <span class="demo" title="Данные машины сейчас не с реального источника">данные: демо</span>
 </div>
+
+<!-- меню -->
+<nav id="rail" aria-label="Разделы">
+  <button data-go="home" aria-current="page"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8M5 10v10h14V10"/></svg>Главная</button>
+  <button data-go="maps"><svg viewBox="0 0 24 24"><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/></svg>Карты</button>
+  <button data-go="music"><svg viewBox="0 0 24 24"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg>Музыка</button>
+  <button data-go="car"><svg viewBox="0 0 24 24"><path d="M4 16l1.5-6A2 2 0 017.4 8.5h9.2a2 2 0 011.9 1.5L20 16v3h-3v-2H7v2H4z"/></svg>Машина</button>
+  <button data-go="apps"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="6" height="6" rx="1.5"/><rect x="14" y="4" width="6" height="6" rx="1.5"/><rect x="4" y="14" width="6" height="6" rx="1.5"/><rect x="14" y="14" width="6" height="6" rx="1.5"/></svg>Прил.</button>
+  <button data-go="set"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></svg>Настройки</button>
+</nav>
 
 <div id="view">
 
-<!-- ГЛАВНАЯ -->
+<!-- ===== ГЛАВНАЯ ===== -->
 <section class="screen on" id="s-home" aria-label="Главная">
-  <div class="card col" style="width:230px;align-items:center;justify-content:space-between">
-    <span class="tag">демо</span>
-    <span class="lbl" style="align-self:flex-start">Машина</span>
-    <svg class="car" viewBox="0 0 150 300" aria-label="Силуэт: открыта передняя левая дверь">
-      <rect x="25" y="8" width="100" height="284" rx="46" fill="none" stroke="var(--mute)" stroke-width="3"/>
-      <rect x="40" y="58" width="70" height="46" rx="10" fill="var(--bg2)" stroke="var(--line)"/>
-      <rect x="40" y="196" width="70" height="40" rx="10" fill="var(--bg2)" stroke="var(--line)"/>
-      <path class="door open" d="M18 112 L28 112 L28 170 L18 170 Z"/>
-      <path class="door" d="M122 112 L132 112 L132 170 L122 170 Z"/>
-      <path class="door" d="M18 176 L28 176 L28 230 L18 230 Z"/>
-      <path class="door" d="M122 176 L132 176 L132 230 L122 230 Z"/>
-    </svg>
-    <span class="warn" style="font-size:15px">Открыта дверь водителя</span>
-  </div>
-
-  <div class="card speed g2">
-    <span class="tag">демо</span>
-    <div class="big num" id="speed">0</div>
-    <span class="lbl" style="margin-top:6px">км/ч</span>
-    <div class="row" style="width:100%;margin-top:26px;justify-content:space-around">
-      <div><div class="mid num">412<span class="u">км</span></div><div class="lbl">запас хода</div></div>
-      <div><div class="mid num">38<span class="u">%</span></div><div class="lbl">топливо</div></div>
-      <div><div class="mid num">17,4<span class="u">км</span></div><div class="lbl">поездка</div></div>
-    </div>
-  </div>
-
-  <div class="col g2" style="max-width:330px">
-    <div class="card col" style="gap:14px;flex:1">
-      <span class="lbl">Сейчас играет</span>
-      <div class="row" style="align-items:center"><div class="cover"></div>
-        <div style="min-width:0"><div class="mid" style="font-size:22px">Ничего не играет</div><div class="lbl" style="margin-top:4px">выбери источник</div></div></div>
-      <div class="row" style="justify-content:space-between">
-        <button class="btn ctl" aria-label="Назад" data-f><svg viewBox="0 0 24 24"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg></button>
-        <button class="btn ctl pri" aria-label="Пуск" data-f><svg viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></svg></button>
-        <button class="btn ctl" aria-label="Вперёд" data-f><svg viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM4 5l11 7L4 19z"/></svg></button>
+  <div class="side">
+    <div class="glass speedw">
+      <span class="demo corner">демо</span>
+      <span class="lbl">Скорость</span>
+      <div class="v thin num"><span class="spd">0</span><span class="u">км/ч</span></div>
+      <div class="stats">
+        <div><b class="num">90°</b><span>ОЖ</span></div>
+        <div><b class="num">14,1</b><span>вольт</span></div>
+        <div><b class="num rpm">780</b><span>об/мин</span></div>
       </div>
     </div>
-    <button class="btn pri" data-f data-act="nav-home" style="min-height:76px;font-size:22px">Домой</button>
-  </div>
-</section>
-
-<!-- МУЗЫКА -->
-<section class="screen" id="s-music" aria-label="Музыка">
-  <div class="card col g2" style="justify-content:space-between">
-    <div class="row" style="gap:26px;align-items:center"><div class="cover" style="width:170px;height:170px"></div>
-      <div><div class="lbl">Источник: не выбран</div><div class="big" style="font-size:40px;margin-top:8px">Ничего не играет</div></div></div>
-    <div class="bar"><i style="width:0"></i></div>
-    <div class="row" style="justify-content:center;gap:26px">
-      <button class="btn ctl" aria-label="Назад" data-f><svg viewBox="0 0 24 24"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg></button>
-      <button class="btn ctl pri" aria-label="Пуск" data-f style="width:84px;height:84px"><svg viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></svg></button>
-      <button class="btn ctl" aria-label="Вперёд" data-f><svg viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM4 5l11 7L4 19z"/></svg></button>
+    <div class="glass media">
+      <div class="row"><div class="cover"></div><div class="trk"><b>Ничего не играет</b><span>Выберите источник</span></div></div>
+      <div class="prog"><i style="width:0"></i></div>
+      <div class="ctls">
+        <button class="ctl" data-f aria-label="Назад"><svg viewBox="0 0 24 24"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg></button>
+        <button class="ctl pri" data-f aria-label="Пуск"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
+        <button class="ctl" data-f aria-label="Вперёд"><svg viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM4 5l11 7L4 19z"/></svg></button>
+      </div>
     </div>
   </div>
-  <div class="list g1" style="max-width:360px">
-    <span class="lbl">Источник</span>
-    <button class="item" data-f aria-pressed="false">Bluetooth <small>нет устройства</small></button>
-    <button class="item" data-f>USB / файлы</button>
-    <button class="item" data-f>Яндекс Музыка</button>
-    <button class="item" data-f>VK Музыка</button>
+
+  <div class="glass map" id="map-home"></div>
+
+  <div class="side">
+    <div class="glass carw">
+      <span class="demo corner">демо</span>
+      <svg class="car" viewBox="0 0 90 190" aria-label="Машина сверху: открыта дверь водителя">
+        <defs><linearGradient id="cbody" x1="0" x2="1"><stop offset="0" stop-color="#2a3446"/><stop offset=".5" stop-color="#3a475e"/><stop offset="1" stop-color="#2a3446"/></linearGradient></defs>
+        <path class="body" d="M45 6c18 0 30 8 32 22l3 40v70c0 24-10 44-35 46-25-2-35-22-35-46V68l3-40C15 14 27 6 45 6z"/>
+        <path class="win" d="M22 58c6-8 40-8 46 0l-4 26H26z"/>
+        <path class="win" d="M26 140h38l3 18c-8 8-36 8-44 0z"/>
+        <rect class="win" x="26" y="88" width="38" height="48" rx="6" opacity=".35"/>
+        <rect class="door open" x="5" y="70" width="5" height="34" rx="2"/>
+        <rect class="door" x="80" y="70" width="5" height="34" rx="2"/>
+        <rect class="door" x="5" y="108" width="5" height="30" rx="2"/>
+        <rect class="door" x="80" y="108" width="5" height="30" rx="2"/>
+      </svg>
+      <div class="kv">
+        <div><b class="num">412<span class="u">км</span></b><span>запас хода</span><div class="fuel"><i></i></div></div>
+        <div><b class="num">7,9<span class="u">л/100</span></b><span>средний расход</span></div>
+        <div><b class="warn" style="font-size:14px;font-weight:500">Открыта<br>дверь водителя</b></div>
+      </div>
+    </div>
+    <div class="glass quick">
+      <button class="qb" data-f><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8M5 10v10h14V10"/></svg>Домой</button>
+      <button class="qb" data-f><svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>Работа</button>
+      <button class="qb" data-f><svg viewBox="0 0 24 24"><path d="M4 21V5a2 2 0 012-2h6a2 2 0 012 2v16M3 21h12M14 9h2a2 2 0 012 2v5a1.5 1.5 0 003 0V8l-3-3"/><path d="M7 7h4v4H7z"/></svg>АЗС</button>
+    </div>
   </div>
 </section>
 
-<!-- КАРТЫ -->
+<!-- ===== КАРТЫ (на весь экран) ===== -->
 <section class="screen" id="s-maps" aria-label="Карты">
-  <div class="card col g2" style="justify-content:center;gap:16px">
-    <span class="lbl">Навигатор по умолчанию</span>
-    <div class="mid" id="navname">Яндекс Навигатор</div>
-    <button class="btn pri" data-f style="min-height:84px;font-size:24px">Открыть карту</button>
+  <div class="glass map full" id="map-full"></div>
+</section>
+
+<!-- ===== МУЗЫКА ===== -->
+<section class="screen" id="s-music" aria-label="Музыка">
+  <div class="glass" style="flex:1;padding:26px;display:flex;gap:30px;align-items:center">
+    <div class="cover" style="width:230px;height:230px;border-radius:22px"></div>
+    <div style="flex:1;display:flex;flex-direction:column;gap:18px">
+      <span class="lbl">Источник не выбран</span>
+      <div class="thin" style="font-size:46px;letter-spacing:-.02em">Ничего не играет</div>
+      <div class="prog"><i style="width:0"></i></div>
+      <div class="ctls" style="justify-content:flex-start;gap:22px;padding:0">
+        <button class="ctl" data-f aria-label="Назад"><svg viewBox="0 0 24 24"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg></button>
+        <button class="ctl pri" data-f aria-label="Пуск" style="width:68px;height:68px"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
+        <button class="ctl" data-f aria-label="Вперёд"><svg viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM4 5l11 7L4 19z"/></svg></button>
+      </div>
+    </div>
   </div>
-  <div class="col g1" style="max-width:360px">
-    <span class="lbl">Быстрые маршруты</span>
-    <button class="btn" data-f style="min-height:84px">Домой</button>
-    <button class="btn" data-f style="min-height:84px">На работу</button>
-    <button class="btn" data-f style="min-height:84px">Ближайшая АЗС</button>
+  <div class="list" style="width:300px;flex:none" id="srcs">
+    <span class="lbl" style="padding:4px 4px 0">Источник</span>
+    <button class="item" data-f aria-pressed="false">Bluetooth<small>нет устройства</small></button>
+    <button class="item" data-f aria-pressed="false">USB / файлы</button>
+    <button class="item" data-f aria-pressed="false">Яндекс Музыка</button>
+    <button class="item" data-f aria-pressed="false">VK Музыка</button>
   </div>
 </section>
 
-<!-- МАШИНА -->
+<!-- ===== МАШИНА ===== -->
 <section class="screen" id="s-car" aria-label="Машина">
-  <div class="col g2">
-    <div class="row g1">
-      <div class="card g1"><span class="tag">демо</span><div class="lbl">Охлаждающая жидкость</div><div class="big num" style="margin-top:12px">90<span class="u">°C</span></div></div>
-      <div class="card g1"><span class="tag">демо</span><div class="lbl">Обороты</div><div class="big num" style="margin-top:12px">780<span class="u">об/мин</span></div></div>
-      <div class="card g1"><span class="tag">демо</span><div class="lbl">Напряжение</div><div class="big num" style="margin-top:12px">14,1<span class="u">В</span></div></div>
+  <div style="flex:1;display:flex;flex-direction:column;gap:14px">
+    <div style="display:flex;gap:14px;flex:1">
+      <div class="glass tile"><span class="demo corner">демо</span><div class="lbl">Охлаждающая жидкость</div><div class="v thin num">90<span class="u">°C</span></div></div>
+      <div class="glass tile"><span class="demo corner">демо</span><div class="lbl">Обороты</div><div class="v thin num rpm">780</div></div>
+      <div class="glass tile"><span class="demo corner">демо</span><div class="lbl">Напряжение</div><div class="v thin num">14,1<span class="u">В</span></div></div>
     </div>
-    <div class="row g1">
-      <div class="card g1"><div class="lbl">Ошибки</div><div class="mid" style="margin-top:10px">Не прочитаны</div><div class="lbl" style="margin-top:6px;text-transform:none;letter-spacing:0;font-size:15px">Нужен кабель K+DCAN</div></div>
-      <div class="card g1"><div class="lbl">Сервис (CBS)</div><div class="mid" style="margin-top:10px">Не прочитан</div><div class="lbl" style="margin-top:6px;text-transform:none;letter-spacing:0;font-size:15px">Нужен кабель K+DCAN</div></div>
+    <div style="display:flex;gap:14px;flex:1">
+      <div class="glass tile"><div class="lbl">Ошибки</div><div style="font-size:24px;font-weight:300;margin-top:14px">Не прочитаны</div><div style="color:var(--mute);font-size:13px;margin-top:6px">Нужен кабель K+DCAN</div></div>
+      <div class="glass tile"><div class="lbl">Сервис CBS</div><div style="font-size:24px;font-weight:300;margin-top:14px">Не прочитан</div><div style="color:var(--mute);font-size:13px;margin-top:6px">Нужен кабель K+DCAN</div></div>
     </div>
   </div>
-  <div class="col g1" style="max-width:300px">
-    <span class="lbl">Источник данных</span>
-    <button class="item" data-f aria-pressed="true" data-src>Демо <small class="warn">активен</small></button>
-    <button class="item" data-f disabled style="opacity:.5">Магнитола (CAN) <small>не проверено</small></button>
-    <button class="item" data-f disabled style="opacity:.5">Кабель OBD <small>не подключён</small></button>
-    <small class="lbl" style="text-transform:none;letter-spacing:0;font-size:14px">Только чтение. Запись в блоки — отдельным действием с подтверждением.</small>
+  <div class="list" style="width:290px;flex:none">
+    <span class="lbl" style="padding:4px 4px 0">Источник данных</span>
+    <button class="item" data-f aria-pressed="true">Демо<small class="warn">активен</small></button>
+    <button class="item" disabled>Магнитола (CAN)<small>не проверено</small></button>
+    <button class="item" disabled>Кабель OBD<small>не подключён</small></button>
+    <small style="color:var(--mute);font-size:12.5px;padding:2px 4px">Только чтение. Запись в блоки — отдельным действием с подтверждением.</small>
   </div>
 </section>
 
-<!-- ПРИЛОЖЕНИЯ -->
-<section class="screen" id="s-apps" aria-label="Приложения">
-  <div class="apps" id="appgrid"></div>
-</section>
+<!-- ===== ПРИЛОЖЕНИЯ ===== -->
+<section class="screen" id="s-apps" aria-label="Приложения"><div class="apps" id="appgrid"></div></section>
 
-<!-- НАСТРОЙКИ -->
+<!-- ===== НАСТРОЙКИ ===== -->
 <section class="screen" id="s-set" aria-label="Настройки">
-  <div class="list g1">
+  <div class="list" style="flex:1">
     <button class="item" data-f role="switch" aria-checked="false" id="t-theme"><span>Дневная тема</span><i class="sw"></i></button>
-    <div class="item" style="gap:10px"><span>Стиль</span>
-      <span class="row" id="styles">
-        <button class="btn" data-f data-style="graphite" aria-pressed="true" style="min-height:48px;padding:0 16px">Графит</button>
-        <button class="btn" data-f data-style="ice" aria-pressed="false" style="min-height:48px;padding:0 16px">Лёд</button>
-        <button class="btn" data-f data-style="amber" aria-pressed="false" style="min-height:48px;padding:0 16px">Янтарь</button>
-      </span></div>
-    <button class="item" data-f id="t-nav"><span>Навигатор</span><small id="navset">Яндекс Навигатор</small></button>
+    <button class="item" data-f id="t-nav"><span>Навигатор по умолчанию</span><small id="navset">Яндекс Навигатор</small></button>
+    <button class="item" data-f><span>Звук</span><small>›</small></button>
   </div>
-  <div class="list g1">
+  <div class="list" style="flex:1">
     <button class="item" data-f><span>Источники данных и кабель OBD</span><small>›</small></button>
     <button class="item" data-f><span>Система</span><small>Android — проверить</small></button>
     <button class="item" data-f><span>Заводской интерфейс и настройки Android</span><small>›</small></button>
@@ -223,23 +300,14 @@ button:focus-visible,[data-f]:focus-visible{outline:3px solid var(--accent);outl
 </section>
 
 </div>
-
-<nav id="dock" aria-label="Разделы">
-  <button data-go="home" aria-current="page"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8M5 10v10h14V10"/></svg>Главная</button>
-  <button data-go="music"><svg viewBox="0 0 24 24"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg>Музыка</button>
-  <button data-go="maps"><svg viewBox="0 0 24 24"><path d="M12 22s7-6.5 7-12a7 7 0 10-14 0c0 5.5 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg>Карты</button>
-  <button data-go="car"><svg viewBox="0 0 24 24"><path d="M4 16l1.5-6A2 2 0 017.4 8.5h9.2a2 2 0 011.9 1.5L20 16v3h-3v-2H7v2H4z"/><circle cx="7.5" cy="13" r=".8"/><circle cx="16.5" cy="13" r=".8"/></svg>Машина</button>
-  <button data-go="apps"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="6" height="6" rx="1.5"/><rect x="14" y="4" width="6" height="6" rx="1.5"/><rect x="4" y="14" width="6" height="6" rx="1.5"/><rect x="14" y="14" width="6" height="6" rx="1.5"/></svg>Приложения</button>
-  <button data-go="set"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg>Настройки</button>
-</nav>
 </div>
 
 <script>
 const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
-const stage=$('#stage');
+const stage=$('#stage'),NS='http://www.w3.org/2000/svg';
 
-/* масштаб под реальный экран (1280×480 / 1920×720) */
-function fit(){const k=Math.min(innerWidth/1280,innerHeight/480);stage.style.transform=`scale(${k})`}
+/* масштаб под реальный экран */
+function fit(){stage.style.transform=`scale(${Math.min(innerWidth/1280,innerHeight/480)})`}
 addEventListener('resize',fit);fit();
 
 /* часы */
@@ -247,31 +315,65 @@ function tick(){const d=new Date();$('#clock').textContent=d.toLocaleTimeString(
   $('#date').textContent=d.toLocaleDateString('ru',{weekday:'short',day:'numeric',month:'long'})}
 tick();setInterval(tick,10000);
 
-/* навигация по разделам */
-const order=['home','music','maps','car','apps','set'];let cur='home';
-function go(id){cur=id;$$('.screen').forEach(s=>s.classList.toggle('on',s.id==='s-'+id));
-  $$('#dock button').forEach(b=>b.dataset.go===id?b.setAttribute('aria-current','page'):b.removeAttribute('aria-current'))}
-$$('#dock button').forEach(b=>b.onclick=()=>go(b.dataset.go));
+/* ===== Карта: демо-подложка. В машине здесь окно навигатора (Яндекс/Google) ===== */
+const ROUTE='M300 470 L300 400 C300 370 312 352 340 344 L470 306 C505 296 520 272 524 240 L536 120 C539 96 556 84 580 82 L700 78';
+function mapSVG(full){
+  const blocks=[];for(let x=-40;x<900;x+=62)for(let y=-40;y<560;y+=58)if((x*7+y*3)%5)blocks.push(`<rect class="blk" x="${x+6}" y="${y+6}" width="50" height="46" rx="4"/>`);
+  const minors=[];for(let x=-40;x<900;x+=62)minors.push(`<path class="minor" d="M${x} -60 V600"/>`);for(let y=-40;y<560;y+=58)minors.push(`<path class="minor" d="M-60 ${y} H960"/>`);
+  return `<svg class="m" viewBox="${full?'60 0 820 430':'150 20 560 410'}" preserveAspectRatio="xMidYMid slice">
+  <rect class="bg" x="-100" y="-100" width="1200" height="800"/>
+  <g transform="rotate(-14 450 240)">${blocks.join('')}${minors.join('')}</g>
+  <path class="park" d="M600 150 h150 a12 12 0 0 1 12 12 v90 a12 12 0 0 1 -12 12 h-150 a12 12 0 0 1 -12 -12 v-90 a12 12 0 0 1 12 -12z"/>
+  <path class="water" d="M-60 360 C120 330 220 400 380 372 S640 310 960 340 L960 392 C680 362 560 430 380 424 S120 384 -60 412Z"/>
+  <path class="major" d="M300 520 L300 400 C300 370 312 352 340 344 L470 306 C505 296 520 272 524 240 L536 120 C539 96 556 84 580 82 L960 70"/>
+  <path class="major" d="M-60 230 L960 200"/><path class="major" d="M150 -40 L230 560"/><path class="major" d="M760 -40 C740 200 720 330 800 560"/>
+  <text x="600" y="104">ПРОСПЕКТ МИРА</text><text x="40" y="222">САДОВАЯ УЛ.</text><text x="650" y="210">ПАРК</text><text x="420" y="398">РЕКА</text>
+  <path class="route-glow" d="${ROUTE}"/><path class="route" d="${ROUTE}"/><path class="flow" d="${ROUTE}"/>
+  <circle class="dest" cx="700" cy="78" r="9"/><circle cx="700" cy="78" r="3.5" fill="#fff"/>
+  <g class="me"><circle r="22" fill="var(--glow)" opacity=".5"/><circle r="13" fill="#fff"/><path d="M0 -9 L7 7 L0 3 L-7 7Z" fill="var(--accent)"/></g>
+  </svg><div class="vign"></div>
+  <div class="glass turn"><div class="ic"><svg viewBox="0 0 24 24"><path d="M6 20v-7a4 4 0 014-4h8M14 5l4 4-4 4"/></svg></div>
+    <div><b class="num">300 м</b><span>направо, Садовая ул.</span></div></div>
+  <span class="demo maptag">демо-карта</span>
+  ${full?`<div class="mapbtns"><button class="glass" data-f aria-label="Приблизить">+</button><button class="glass" data-f aria-label="Отдалить">−</button></div>`:''}
+  <div class="glass eta"><div><b class="num">12 мин</b><span>5,4 км</span></div><div><b class="num eta-t">--:--</b><span>прибытие</span></div>
+    <span class="sp"></span><button class="btn pri" data-f>${full?'Открыть ':''}<span class="navname">Яндекс Навигатор</span></button></div>`;
+}
+$('#map-home').innerHTML=mapSVG(false);$('#map-full').innerHTML=mapSVG(true);
+const eta=new Date(Date.now()+12*60000).toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit'});$$('.eta-t').forEach(e=>e.textContent=eta);
 
-/* приложения (пример списка, реальный — из системы) */
-['Яндекс Навигатор','Google Maps','2ГИС','Яндекс Музыка','VK Музыка','Телефон','Файлы','Камера','Настройки Android','Заводской лаунчер','Радио','Браузер']
- .forEach(n=>{const b=document.createElement('button');b.className='btn app';b.dataset.f='';b.innerHTML=`<b>${n[0]}</b>${n}`;$('#appgrid').append(b)});
+/* метка машины едет по маршруту */
+const probe=document.createElementNS(NS,'path');probe.setAttribute('d',ROUTE);
+const L=probe.getTotalLength();let t=.2;
+function drive(){t+=.0006;if(t>.97)t=.2;const p=probe.getPointAtLength(t*L),q=probe.getPointAtLength(Math.min(L,t*L+2));
+  const a=Math.atan2(q.y-p.y,q.x-p.x)*180/Math.PI+90;
+  $$('.m .me').forEach(g=>g.setAttribute('transform',`translate(${p.x} ${p.y}) rotate(${a})`));requestAnimationFrame(drive)}
+drive();
+
+/* демо-скорость и обороты */
+let v=0,dir=1;setInterval(()=>{v+=dir*2;if(v>=58)dir=-1;if(v<=0)dir=1;
+  $$('.spd').forEach(e=>e.textContent=v);$$('.rpm').forEach(e=>e.textContent=v?Math.round(1100+v*38):780)},500);
+
+/* разделы */
+function go(id){$$('.screen').forEach(s=>s.classList.toggle('on',s.id==='s-'+id));
+  $$('#rail button').forEach(b=>b.dataset.go===id?b.setAttribute('aria-current','page'):b.removeAttribute('aria-current'))}
+$$('#rail button').forEach(b=>b.onclick=()=>go(b.dataset.go));
+
+/* приложения (пример; в машине — список из системы) */
+[['Яндекс Навигатор','#e8453c'],['Google Maps','#1a73e8'],['2ГИС','#19aa1e'],['Яндекс Музыка','#d9a400'],['VK Музыка','#0a6cf0'],['Телефон','#22b45a'],
+ ['Файлы','#8a6cf0'],['Радио','#e85d3a'],['Браузер','#3b82f6'],['Камера','#6b7280'],['Настройки Android','#64748b'],['Заводской лаунчер','#475569']]
+ .forEach(([n,c])=>{const b=document.createElement('button');b.className='glass app';b.dataset.f='';
+   b.innerHTML=`<i style="background:linear-gradient(145deg,${c},color-mix(in srgb,${c} 55%,#000))">${n[0]}</i>${n}`;$('#appgrid').append(b)});
 
 /* настройки */
 $('#t-theme').onclick=e=>{const on=e.currentTarget.getAttribute('aria-checked')!=='true';
   e.currentTarget.setAttribute('aria-checked',on);stage.dataset.theme=on?'day':'night'};
-$$('#styles .btn').forEach(b=>b.onclick=()=>{stage.dataset.style=b.dataset.style;
-  $$('#styles .btn').forEach(x=>x.setAttribute('aria-pressed',x===b))});
 const navs=['Яндекс Навигатор','Google Maps','2ГИС'];let ni=0;
-$('#t-nav').onclick=()=>{ni=(ni+1)%navs.length;$('#navset').textContent=$('#navname').textContent=navs[ni]};
-$$('[aria-pressed]').forEach(b=>{if(b.closest('.list')&&!b.dataset.style&&!b.disabled&&!b.hasAttribute('data-src'))
-  b.addEventListener('click',()=>{$$('[aria-pressed]',b.parentElement).forEach(x=>x.setAttribute('aria-pressed',x===b))})});
-
-/* демо-скорость (помечена «демо») */
-let v=0,dir=1;setInterval(()=>{v+=dir*3;if(v>=62)dir=-1;if(v<=0)dir=1;$('#speed').textContent=v},400);
+$('#t-nav').onclick=()=>{ni=(ni+1)%navs.length;$('#navset').textContent=navs[ni];$$('.navname').forEach(e=>e.textContent=navs[ni])};
+$$('#srcs .item').forEach(b=>b.onclick=()=>$$('#srcs .item').forEach(x=>x.setAttribute('aria-pressed',x===b)));
 
 /* крутилка iDrive: стрелки двигают фокус, Enter — нажатие, Esc — на главную */
-function focusables(){return $$('[data-f],#dock button').filter(e=>e.offsetParent&&!e.disabled)}
+function focusables(){return $$('[data-f],#rail button').filter(e=>e.offsetParent&&!e.disabled)}
 addEventListener('keydown',e=>{
   if(e.key==='Escape'){go('home');return}
   const m={ArrowUp:[0,-1],ArrowDown:[0,1],ArrowLeft:[-1,0],ArrowRight:[1,0]}[e.key];if(!m)return;
