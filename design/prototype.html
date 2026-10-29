@@ -17,14 +17,6 @@
   --map-bg:#0b1220; --map-block:#111a2b; --map-minor:#1c2638; --map-major:#2b374d; --map-water:#0c2440; --map-park:#0f2420; --map-label:#5f6b80;
   --shadow:0 12px 32px rgba(0,0,0,.45);
 }
-[data-theme=day]{
-  --bg0:#cfd6e0; --bg1:#eef2f7;
-  --glass:rgba(255,255,255,.62); --glass2:rgba(255,255,255,.85); --edge:rgba(20,40,70,.10); --hi:rgba(255,255,255,.9);
-  --text:#0f1724; --mute:#556072; --dim:#8a94a6;
-  --accent:#0a72e0; --accent2:#3d9bff; --glow:rgba(10,114,224,.28);
-  --map-bg:#e8edf3; --map-block:#dde4ec; --map-minor:#ffffff; --map-major:#fdfdfd; --map-water:#b9d3ee; --map-park:#cfe5d2; --map-label:#7a8494;
-  --shadow:0 10px 26px rgba(30,50,80,.16);
-}
 
 *{box-sizing:border-box;margin:0}
 html,body{height:100%;background:#000;overflow:hidden}
@@ -78,7 +70,6 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;-webki
 .hero{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:10px;border-radius:22px;border:1px solid transparent;padding-bottom:4px}
 .hero .ph{width:470px;height:220px;background:url(img/car.jpg) center/contain no-repeat;
   -webkit-mask:radial-gradient(70% 75% at 50% 52%,#000 62%,transparent 100%);mask:radial-gradient(70% 75% at 50% 52%,#000 62%,transparent 100%)}
-[data-theme=day] .hero .ph{filter:brightness(1.15)}
 .hero .nm{font-size:22px;font-weight:300;letter-spacing:.2em}
 .hstat{display:flex;align-items:center;gap:18px;font-size:15px;color:var(--mute)}
 .hstat svg{width:26px;height:26px;stroke:var(--text);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;vertical-align:-7px;margin-right:8px}
@@ -138,7 +129,6 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;-webki
 .m .dest{fill:var(--accent)}
 .vign{position:absolute;inset:0;pointer-events:none;border-radius:22px;
   background:radial-gradient(120% 90% at 50% 45%,transparent 55%,rgba(0,0,0,.45));}
-[data-theme=day] .vign{background:radial-gradient(120% 90% at 50% 45%,transparent 60%,rgba(40,60,90,.12))}
 .turn{position:absolute;left:14px;top:14px;display:flex;align-items:center;gap:14px;padding:12px 18px 12px 14px;border-radius:16px}
 .turn .ic{width:46px;height:46px;border-radius:12px;background:var(--accent);display:grid;place-items:center;box-shadow:0 6px 18px var(--glow)}
 .turn .ic svg{width:28px;height:28px;stroke:#fff;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
@@ -190,7 +180,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;-webki
 </style>
 </head>
 <body>
-<div id="stage" data-theme="night">
+<div id="stage">
 
 <!-- статус-бар -->
 <div id="top">
@@ -291,7 +281,6 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;-webki
 <!-- ===== НАСТРОЙКИ ===== -->
 <section class="screen" id="s-set" aria-label="Настройки">
   <div class="list" style="flex:1">
-    <button class="item" data-f role="switch" aria-checked="false" id="t-theme"><span>Дневная тема</span><i class="sw"></i></button>
     <button class="item" data-f id="t-nav"><span>Навигатор по умолчанию</span><small id="navset">Яндекс Навигатор</small></button>
     <button class="item" data-f><span>Звук</span><small>›</small></button>
   </div>
@@ -381,8 +370,6 @@ $('#pp').onclick=e=>{const b=e.currentTarget,pl=b.getAttribute('aria-label')==='
    b.innerHTML=`<i style="background:linear-gradient(145deg,${c},color-mix(in srgb,${c} 55%,#000))">${n[0]}</i>${n}`;$('#appgrid').append(b)});
 
 /* настройки */
-$('#t-theme').onclick=e=>{const on=e.currentTarget.getAttribute('aria-checked')!=='true';
-  e.currentTarget.setAttribute('aria-checked',on);stage.dataset.theme=on?'day':'night'};
 const navs=['Яндекс Навигатор','Google Maps','2ГИС'];let ni=0;
 $('#t-nav').onclick=()=>{ni=(ni+1)%navs.length;$('#navset').textContent=navs[ni];$$('.navname').forEach(e=>e.textContent=navs[ni])};
 $$('#srcs .item').forEach(b=>b.onclick=()=>$$('#srcs .item').forEach(x=>x.setAttribute('aria-pressed',x===b)));
