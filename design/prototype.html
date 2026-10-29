@@ -68,8 +68,12 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;-webki
 
 /* главная по макету владельца: машина слева, медиа справа */
 .hero{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:10px;border-radius:22px;border:1px solid transparent;padding-bottom:4px}
-.hero .ph{width:470px;height:220px;background:url(img/car.jpg) center/contain no-repeat;
-  -webkit-mask:radial-gradient(70% 75% at 50% 52%,#000 62%,transparent 100%);mask:radial-gradient(70% 75% at 50% 52%,#000 62%,transparent 100%)}
+.hero .ph{width:500px;height:220px;display:block;overflow:visible}
+.sweep{animation:sweep 7s ease-in-out infinite}
+@keyframes sweep{0%,20%{transform:translateX(-620px)}60%,100%{transform:translateX(620px)}}
+.halo{animation:halo 3.2s ease-in-out infinite}
+@keyframes halo{50%{opacity:.55}}
+@media (prefers-reduced-motion:reduce){.sweep,.halo{animation:none}}
 .hero .nm{font-size:22px;font-weight:300;letter-spacing:.2em}
 .hstat{display:flex;align-items:center;gap:18px;font-size:15px;color:var(--mute)}
 .hstat svg{width:26px;height:26px;stroke:var(--text);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;vertical-align:-7px;margin-right:8px}
@@ -292,7 +296,60 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;-webki
 <!-- ===== ГЛАВНАЯ ===== -->
 <section class="screen on" id="s-home" data-nav="guide" aria-label="Главная" style="gap:40px;padding:0 20px">
   <button class="hero" data-f data-go="car" aria-label="Моя машина">
-    <div class="ph" role="img" aria-label="Фото машины (заглушка)"></div>
+    <svg class="ph" viewBox="0 0 600 240" role="img" aria-label="Иллюстрация машины">
+      <defs>
+        <linearGradient id="g-body" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#46546e"/><stop offset=".4" stop-color="#1a2131"/><stop offset="1" stop-color="#080a10"/></linearGradient>
+        <linearGradient id="g-glass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#26405f"/><stop offset=".55" stop-color="#0b1220"/><stop offset="1" stop-color="#05080d"/></linearGradient>
+        <linearGradient id="g-rim" x1="0" x2="1"><stop offset="0" stop-color="#7cc0ff" stop-opacity="0"/><stop offset=".35" stop-color="#7cc0ff"/><stop offset=".75" stop-color="#3d9bff"/><stop offset="1" stop-color="#3d9bff" stop-opacity="0"/></linearGradient>
+        <linearGradient id="g-sweep" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#cfe6ff" stop-opacity=".22"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+        <radialGradient id="g-floor" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#3d9bff" stop-opacity=".35"/><stop offset=".6" stop-color="#3d9bff" stop-opacity=".06"/><stop offset="1" stop-color="#3d9bff" stop-opacity="0"/></radialGradient>
+        <radialGradient id="g-wheel" cx=".5" cy=".5" r=".5"><stop offset=".55" stop-color="#1a2130"/><stop offset=".8" stop-color="#0c1018"/><stop offset="1" stop-color="#05070b"/></radialGradient>
+        <linearGradient id="g-refl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".16"/><stop offset=".7" stop-color="#fff" stop-opacity="0"/></linearGradient>
+        <mask id="m-refl"><rect x="0" y="170" width="600" height="70" fill="url(#g-refl)"/></mask>
+        <filter id="f-glow" x="-20%" y="-50%" width="140%" height="200%"><feGaussianBlur stdDeviation="3"/></filter>
+        <filter id="f-soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="9"/></filter>
+        <clipPath id="c-body"><path id="p-body" d="M28 152C26 132 34 122 60 116L175 104C200 100 225 78 262 64C290 55 370 53 405 58C430 64 455 84 478 96L540 101C556 104 562 118 562 132V150C562 158 556 162 548 162H500A46 46 0 0 0 408 162H190A46 46 0 0 0 98 162H44C34 162 28 158 28 152Z"/></clipPath>
+        <g id="wh">
+            <circle r="40" fill="url(#g-wheel)"/>
+            <circle r="27" fill="#0a0e15" stroke="#5f6f88" stroke-width="1.5"/>
+            <g stroke="#8ea2c0" stroke-width="2.4" stroke-linecap="round">
+              <path d="M0 -6V-25M5.7 -1.9L23.8 -7.7M3.5 4.9L14.7 20.2M-3.5 4.9L-14.7 20.2M-5.7 -1.9L-23.8 -7.7"/>
+            </g>
+            <circle r="5" fill="#1b2433" stroke="#8ea2c0" stroke-width="1.2"/>
+          </g>
+        <g id="car">
+          <use href="#p-body" fill="url(#g-body)"/>
+          <!-- стекло и стойки -->
+          <path d="M205 103C228 84 250 72 271 67C300 61 360 60 398 63C421 69 441 83 457 95Z" fill="url(#g-glass)"/>
+          <path d="M330 61L327 101" stroke="#05070b" stroke-width="4"/>
+          <path d="M214 97C240 80 262 71 290 66" stroke="#9fd0ff" stroke-opacity=".35" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <!-- линии кузова -->
+          <path d="M62 126C200 116 400 110 548 112" stroke="#8fb6e8" stroke-opacity=".28" stroke-width="1.5" fill="none"/>
+          <path d="M98 140C230 136 400 134 520 136" stroke="#000" stroke-opacity=".5" stroke-width="1.2" fill="none"/>
+          <path d="M212 104C210 125 208 146 206 160M326 102C327 125 327 146 326 162M444 98C444 120 438 142 432 156" stroke="#05070b" stroke-width="1.4" fill="none"/>
+          <path d="M60 150C200 148 420 147 548 149" stroke="#7cc0ff" stroke-opacity=".18" stroke-width="1.2" fill="none"/><rect x="268" y="120" width="22" height="4" rx="2" fill="#3a465c"/><rect x="384" y="118" width="22" height="4" rx="2" fill="#3a465c"/>
+          <!-- зеркало -->
+          <path d="M214 104C214 96 222 92 232 93L236 104Z" fill="#161c28"/>
+          <!-- фара и фонарь -->
+          <path d="M34 128C36 121 46 118 62 117L78 116C74 124 62 130 44 131Z" fill="#0d1420" stroke="#5aa8ff" stroke-opacity=".6"/>
+          <g class="halo"><circle cx="50" cy="124" r="5" fill="none" stroke="#bfe0ff" stroke-width="1.6"/><circle cx="64" cy="122" r="5" fill="none" stroke="#bfe0ff" stroke-width="1.6"/></g>
+          <path d="M540 107L560 110L561 116L541 113Z" fill="#ff3b3b" filter="url(#f-glow)" opacity=".7"/><path d="M540 107L560 110L561 116L541 113Z" fill="#ff5a5a"/>
+          <!-- блик по кузову -->
+          <g clip-path="url(#c-body)"><rect class="sweep" x="0" y="40" width="140" height="140" fill="url(#g-sweep)" transform="translate(-620 0)"/></g>
+          <!-- колёса -->
+          <use href="#wh" x="144" y="166"/><use href="#wh" x="454" y="166"/>
+        </g>
+      </defs>
+      <!-- пол: световое пятно и тень -->
+      <ellipse cx="300" cy="206" rx="290" ry="26" fill="url(#g-floor)"/>
+      <ellipse cx="300" cy="204" rx="250" ry="8" fill="#000" opacity=".7" filter="url(#f-soft)"/>
+      <!-- отражение -->
+      <g mask="url(#m-refl)"><use href="#car" transform="translate(0 412) scale(1 -1)"/></g>
+      <!-- подсветка контура (rim light) -->
+      <path d="M60 116L175 104C200 100 225 78 262 64C290 55 370 53 405 58C430 64 455 84 478 96L540 101" fill="none" stroke="url(#g-rim)" stroke-width="5" filter="url(#f-glow)" opacity=".8"/>
+      <use href="#car"/>
+      <path d="M60 116L175 104C200 100 225 78 262 64C290 55 370 53 405 58C430 64 455 84 478 96L540 101" fill="none" stroke="url(#g-rim)" stroke-width="1.4"/>
+    </svg>
     <div class="nm">320i&nbsp;·&nbsp;E90</div>
     <div class="hstat">
       <span><svg viewBox="0 0 32 24"><path d="M3 9h5l2-2h6l3 3 9-3-6 9H9L7 13H3z"/><path d="M29 15c0 1.5-1 2.5-2 2.5s-2-1-2-2.5 2-3.5 2-3.5 2 2 2 3.5z"/></svg>Масло<span class="oil"><i></i></span></span>
