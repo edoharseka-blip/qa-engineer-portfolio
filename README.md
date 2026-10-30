@@ -13,13 +13,13 @@
 .claude/agents/   команда: руководитель проекта, продакт, UX, дизайнер, Kotlin, Android, CAN/OBD, железо, QA, автотесты
 .claude/skills/   навыки дизайна под Android
 docs/             ТЗ, навигация (NAVIGATION.md), железо, карта экранов, план, решения, проверки, фото магнитолы
-design/prototype.html  новый кликабельный прототип 1280×480 по макету владельца: фото машины и медиа-карточка на главной, нижний док (открыть в браузере; только тёмная тема, стрелки+Enter = крутилка)
+design/prototype.html  кликабельный прототип «iDrive Heritage»: 7 экранов, правое меню, DEMO/«Нет данных» (открыть в браузере; стрелки+Enter = крутилка, Esc = назад)
+design/reference/heritage/  референсы владельца (7 PNG), design/archive/ — прошлые варианты
 third_party/      лицензии использованных наборов агентов (MIT)
 ```
 
 ## Текущий статус
-Этап 0 — исследование. Дизайн переделан с нуля (прототип), основа — макет владельца; дальше дорабатываем остальные экраны в том же стиле. Подробно — [`docs/ROADMAP.md`](docs/ROADMAP.md).
-
+Дизайн «iDrive Heritage» собран прототипом. На согласовании — структура APK и план источников данных: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md). 
 ## Благодарности
 Агенты и навыки основаны на открытых наборах (MIT):
 - [VoltAgent/awesome-claude-code-subagents](https://github.com/VoltAgent/awesome-claude-code-subagents)
